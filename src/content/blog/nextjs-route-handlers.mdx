@@ -1,0 +1,274 @@
+---
+title: "Next.js Route Handlers の使い方とユースケース"
+date: "2026-04-06"
+description: "Route Handlers の基本から、ルートセグメント・コンポーネントとの連携パターンまでユースケースごとにまとめました。"
+---
+
+## Route Handlers とは
+
+Route Handlers を使うと、Web の `Request` / `Response` API を使って特定のURLに対するカスタムリクエストハンドラー（プロジェクトで使用する独自のAPIみたいなもの）を作れます。  
+`app/` ディレクトリ内に `route.ts` を置くことで定義します。
+
+```app/api/route.ts
+export async function GET() {
+  return Response.json({ message: "Hello World" });
+}
+```
+
+`page.tsx` との違いはレスポンスの形式です。`page.tsx` は HTML（React）を返しますが、`route.ts` は JSON・テキスト・バイナリなど任意の形式を返せます。
+
+## サーバーコンポーネントとの関係
+
+サーバーコンポーネントは DB やファイルシステムに直接アクセスできるため、Route Handler を介する必要がありません。  
+ビルド時プリレンダリングの場合、Route Handler 経由だとビルドが失敗します（ビルド時にサーバーが起動していないため）。
+
+```ts
+// ❌ サーバーコンポーネントが Route Handler 経由でデータ取得（不要な迂回）
+const res = await fetch("/api/posts");
+const posts = await res.json();
+
+// ✅ サーバーコンポーネントが直接取得
+const posts = getAllPosts();
+```
+
+Route Handler を使う主な呼び出し元は **クライアントコンポーネント** と **外部サービス（Webhook等）** です。
+
+---
+
+## ユースケース
+
+### 1. クライアントコンポーネントからデータ取得
+
+外部 API の URL や API キーをクライアントに露出させずに、サーバー経由でデータを取得するパターンです。
+
+```app/api/posts/route.ts
+export async function GET() {
+  const data = await fetch("https://secret-api.com/posts?key=xxx");
+  return Response.json(await data.json());
+}
+```
+
+```app/posts/page.tsx
+"use client";
+import useSWR from "swr";
+
+const fetcher = async (url: string) => {
+  const r = await fetch(url);
+  return r.json();
+};
+
+export default function PostList() {
+  const { data: posts } = useSWR("/api/posts", fetcher);
+  return (
+    <ul>
+      {posts?.map((p) => (
+        <li key={p.id}>{p.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+---
+
+### 2. フォーム送信（POST でデータ保存）
+
+クライアントコンポーネントのフォームから POST リクエストを送り、サーバー側で DB に保存するパターンです。
+
+```app/api/contact/route.ts
+
+export async function POST(request: Request) {
+  // formのPOSTリクエストを受け取る
+  const { name, email } = await request.json();
+  await db.insert({ name, email });
+  return Response.json({ success: true });
+}
+```
+
+```app/contact/page.tsx
+"use client";
+
+export default function ContactPage() {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    await fetch("/api/contact", {
+      method: "POST",
+      body: JSON.stringify({
+        name: form.get("name"),
+        email: form.get("email"),
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" />
+      <input name="email" />
+      <button type="submit">送信</button>
+    </form>
+  );
+}
+```
+
+---
+
+### 3. クエリパラメータ検索
+
+`?query=xxx` を受け取って検索結果を返すパターンです。
+
+```app/api/search/route.ts
+import { type NextRequest } from "next/server";
+
+export function GET(request: NextRequest) {
+  const query = request.nextUrl.searchParams.get("query");
+  const results = db.search(query);
+  return Response.json(results);
+}
+```
+
+```app/search/page.tsx
+"use client";
+import { useState } from "react";
+
+export default function SearchPage() {
+  const [results, setResults] = useState([]);
+
+  async function handleSearch(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const q = new FormData(e.currentTarget).get("query");
+    const res = await fetch(`/api/search?query=${q}`);
+    setResults(await res.json());
+  }
+
+  return (
+    <>
+      <form onSubmit={handleSearch}>
+        <input name="query" />
+        <button type="submit">検索</button>
+      </form>
+      <ul>
+        {results.map((r) => (
+          <li key={r.id}>{r.title}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+```
+
+---
+
+### 4. Webhook 受信 → キャッシュ更新
+
+ヘッドレス CMS などの外部サービスから「記事を更新した」通知を受け取り、`revalidateTag` でキャッシュを無効化するパターンです。
+
+```app/api/webhook/route.ts
+import { revalidateTag } from "next/cache";
+
+// ※事前にCMS側で'https://your-site.com/api/webhook'にPOSTリクエストが飛ぶように設定しておく
+export async function POST(request: Request) {
+  const { secret } = await request.json();
+  if (secret !== process.env.WEBHOOK_SECRET) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+  revalidateTag("posts");
+  return new Response("OK", { status: 200 });
+}
+```
+
+次のリクエスト時に再フェッチされ、最新データが表示されます。
+
+```app/blog/page.tsx
+export default async function BlogPage() {
+  const res = await fetch("https://cms.example.com/posts", {
+    next: { tags: ["posts"] },
+  });
+  const posts = await res.json();
+  return (
+    <ul>
+      {posts.map((p) => (
+        <li key={p.id}>{p.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+---
+
+### 5. ストリーミング（AI 応答）
+
+LLM の応答をリアルタイムで流すChatGPT風UI（文字がタイピングされるように流れてくる）のパターンです。
+
+```app/api/chat/route.ts
+import { openai } from "@ai-sdk/openai";
+import { StreamingTextResponse, streamText } from "ai";
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  const result = await streamText({ model: openai("gpt-4-turbo"), messages });
+  return new StreamingTextResponse(result.toAIStream());
+}
+```
+
+```app/chat/page.tsx
+"use client";
+import { useChat } from "ai/react";
+
+export default function ChatPage() {
+  const { messages, input, handleInputChange, handleSubmit } = useChat();
+
+  return (
+    <>
+      <ul>
+        {messages.map((m) => (
+          <li key={m.id}>{m.content}</li>
+        ))}
+      </ul>
+      <form onSubmit={handleSubmit}>
+        <input value={input} onChange={handleInputChange} />
+        <button type="submit">送信</button>
+      </form>
+    </>
+  );
+}
+```
+
+---
+
+### 6. RSS・XML 配信
+
+HTML 以外のコンテンツを返すパターンです。コンポーネントからは使わず、ブラウザや RSS リーダーが直接アクセスします。
+
+```app/rss.xml/route.ts
+// app/rss.xml/route.ts → /rss.xml
+export async function GET() {
+  const posts = await fetch("https://cms.example.com/posts").then((r) =>
+    r.json(),
+  );
+  const xml = `<?xml version="1.0"?>
+<rss version="2.0">
+  <channel>
+    ${posts.map((p) => `<item><title>${p.title}</title></item>`).join("")}
+  </channel>
+</rss>`;
+  return new Response(xml, { headers: { "Content-Type": "text/xml" } });
+}
+```
+
+---
+
+## まとめ
+
+| ユースケース     | 利用側                                                         |
+| ---------------- | -------------------------------------------------------------- |
+| データ取得・検索 | クライアントコンポーネント（useSWR / fetch）                   |
+| フォーム送信     | クライアントコンポーネント（fetch POST）                       |
+| Webhook 受信     | 外部サービスが POST → サーバーコンポーネントのキャッシュが更新 |
+| ストリーミング   | クライアントコンポーネント（useChat 等）                       |
+| RSS・XML 配信    | ブラウザ・RSS リーダーが直接アクセス（コンポーネント不要）     |
+
+サーバーコンポーネント中心の Next.js アプリでは Route Handler を使う場面は限られます。  
+主にクライアントサイドのインタラクティブなデータ取得と、Webhook 受信に活用するのが基本パターンです。

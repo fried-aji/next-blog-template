@@ -1,0 +1,15 @@
+/**
+* Extending base styles
+* https://tailwindcss.com/docs/preflight#extending-preflight
+* @import "tailwindcss";で反映されるリセットCSSに+αで必要となるリセットCSSを設定
+* https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/preflight.css
+*/
+
+@layer base {
+  body {
+    background-color: var(--color-white);
+    color: var(--color-black);
+    font-family: var(--font-ns-jp);
+    min-height: 100dvh;
+  }
+}

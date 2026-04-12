@@ -1,0 +1,8 @@
+/**
+* Hover, focus, and other states
+* https://tailwindcss.com/docs/hover-focus-and-other-states
+*/
+
+/* ARIA states */
+@custom-variant aria-current-page (&[aria-current="page"]);
+@custom-variant aria-current-true (&[aria-current="true"]);

@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    //
+    "firefox-devtools.vscode-firefox-debug",
+    "oxc.oxc-vscode",
+    "bradlc.vscode-tailwindcss"
+  ]
+}

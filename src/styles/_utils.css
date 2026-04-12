@@ -1,0 +1,23 @@
+/**
+* Custom utilities
+* https://tailwindcss.com/docs/adding-custom-styles#adding-custom-utilities
+*/
+
+/* 
+auto-grid
+例：grid-cols-auto-fill-200 
+→ grid-template-columns: repeat(auto-fill, minmax(min(calc(var(--spacing)* 200), 100%), 1fr));） 
+*/
+@utility grid-cols-auto-fill-* {
+  /* 型指定（integer: 整数値） */
+  grid-template-columns: repeat(auto-fill, minmax(min(--spacing(--value(integer)), 100%), 1fr));
+  /* prettier-ignore */
+  grid-template-columns: repeat(auto-fill, minmax(min(--value(--spacing-*), 100%), 1fr));
+}
+
+@utility grid-cols-auto-fit-* {
+  /* 型指定（integer: 整数値） */
+  grid-template-columns: repeat(auto-fit, minmax(min(--spacing(--value(integer)), 100%), 1fr));
+  /* prettier-ignore */
+  grid-template-columns: repeat(auto-fit, minmax(min(--value(--spacing-*), 100%), 1fr));
+}

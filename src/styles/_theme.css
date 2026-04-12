@@ -1,0 +1,11 @@
+/** 
+* Theme variables
+* https://tailwindcss.com/docs/theme 
+*/
+
+@theme inline {
+  --color-white: #fff;
+  --color-black: #171717;
+  --font-ns: var(--font-ns);
+  --font-ns-jp: var(--font-ns-jp);
+}

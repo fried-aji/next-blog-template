@@ -1,0 +1,19 @@
+{
+  // https://oxc.rs/docs/guide/usage/formatter/config-file-reference.html
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "ignorePatterns": [
+    //
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts"
+  ],
+  "sortImports": true,
+  "sortTailwindcss": false,
+  "sortPackageJson": true
+}

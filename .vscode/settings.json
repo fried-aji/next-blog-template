@@ -1,0 +1,29 @@
+{
+  /* Extensions > ESLint */
+  "eslint.enable": false,
+  /* Extensions > Prettier */
+  "prettier.enable": false,
+  /* Extensions > Oxc */
+  "oxc.enable": true,
+  "oxc.fmt.configPath": ".oxfmtrc.json",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "always"
+  },
+  /* Extensions > Emmet */
+  "emmet.includeLanguages": {
+    "tailwindcss": "css"
+  },
+  /* Extensions > Tailwind CSS IntelliSense */
+  // Recommended VS Code Settings
+  // https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss#recommended-vs-code-settings
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  // https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss#tailwindcss.emmetcompletions
+  "tailwindCSS.emmetCompletions": true
+}

@@ -1,0 +1,22 @@
+---
+title: "Next.js App Router の Tips"
+date: "2026-04-03"
+description: "App Router を使う上で知っておくと便利な Tips をまとめました。"
+---
+
+## ルートグループ
+
+`(folderName)` の形式でフォルダを作ると、URL に影響を与えずにルートを整理できます。
+
+```txt
+app/
+├── (marketing)/
+│   └── about/page.tsx  → /about
+└── (shop)/
+    └── cart/page.tsx   → /cart
+```
+
+## layout.tsx の使い方
+
+`layout.tsx` はネストされた全ページに適用される共通レイアウトです。
+ヘッダーやフッターはここに置くのが基本です。

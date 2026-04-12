@@ -1,0 +1,137 @@
+---
+title: "Next.js 従来のレンダリングと cacheComponents: true の違い"
+date: "2026-04-05"
+description: "静的・動的レンダリングのフローを従来モデルと Cache Components モデルで比較し、それぞれの特性と使い分けを整理します。"
+---
+
+import Link from "next/link";
+
+## はじめに
+
+Next.js 16 で導入された `cacheComponents: true` は、従来のレンダリングモデルを大きく変える設定です。
+静的・動的レンダリングのフローがどのように変わるのかを整理します。
+
+---
+
+## 静的レンダリング（ビルド時生成）の比較
+
+|                          | 従来モデル                                   | cacheComponents: true                                                                               |
+| ------------------------ | -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **デフォルト**           | Dynamic API を使わない限り静的               | データ取得はデフォルト動的。静的にするには `use cache` が必要                                       |
+| **静的と判定される条件** | Dynamic API 不使用（自動判定）               | `use cache` を明示 or 決定的な処理（同期 I/O・純粋計算）                                            |
+| **ビルド出力**           | ページ全体が `.html` + `.rsc`                | 静的シェル（`use cache` 部分 + Suspense fallback）が `.html` + `.rsc`                               |
+| **generateStaticParams** | 有効（静的生成）                             | 有効（パス列挙は維持）。ただしページ内のデータ取得には別途 `use cache` が必要。空配列はビルドエラー |
+| **ルートセグメント設定** | `dynamic`, `revalidate`, `fetchCache` が有効 | これらは無効。`use cache` + `cacheLife` に置き換え                                                  |
+
+---
+
+## 動的レンダリング（リクエスト時）の比較
+
+|                          | 従来モデル                                      | cacheComponents: true                                           |
+| ------------------------ | ----------------------------------------------- | --------------------------------------------------------------- |
+| **動的と判定される条件** | `cookies()` `headers()` `searchParams` 等の使用 | `use cache` も Suspense もない非決定的なデータ取得すべて        |
+| **動的部分の返し方**     | ページ全体が揃ってから一括返却                  | Suspense fallback を即返しつつ、動的部分をストリーミング（PPR） |
+| **キャッシュ手段**       | `fetch` オプション・`unstable_cache`            | `use cache` ディレクティブ                                      |
+
+---
+
+## レンダリングフロー
+
+### 従来モデル：静的ルート（例：`/blog/[slug]`）
+
+```
+ビルド時
+  generateStaticParams でスラッグ列挙
+  → 各スラッグで Page をレンダリング
+  → .html + .rsc として保存
+
+リクエスト時
+  CDN から .html を即返す
+  → .rsc を返す
+  → JS でハイドレーション
+```
+
+### 従来モデル：動的ルート（例：`/blog?q=`）
+
+```
+リクエスト時
+  サーバーでページ全体をレンダリング（searchParams を待つ）
+  → HTML を一括で返す（全部揃うまで待機）
+  → RSC Payload を返す
+  → JS でハイドレーション
+```
+
+### cacheComponents: true：静的ルート（例：`/blog/[slug]`）
+
+```
+ビルド時
+  generateStaticParams でスラッグ列挙
+  → use cache 部分 → 静的シェルに含める
+  → Suspense fallback → 静的シェルに含める
+  → 静的シェルを .html + .rsc として保存
+
+リクエスト時
+  静的シェルを即返す（CDN から）
+  → Suspense 内の動的部分をストリーミング（あれば）
+  → JS でハイドレーション
+```
+
+### cacheComponents: true：動的ルート（例：`/blog?q=`）
+
+```
+ビルド時
+  静的部分（ヘッダー等）→ 静的シェルに含める
+  use cache 部分 → 静的シェルに含める
+  Suspense fallback → 静的シェルに含める
+
+リクエスト時
+  静的シェルを即返す
+  → searchParams 等 Dynamic API を使うコンポーネントをストリーミング
+  → JS でハイドレーション
+```
+
+---
+
+## 本質的な違い
+
+従来モデルは「ルート単位で静的か動的かを自動判定」していました。
+`cacheComponents: true` はその粒度を**コンポーネント・関数レベル**まで細かくした設計です。
+
+> Next.js takes a different approach: **the boundary between static and dynamic is at the component level, not the route level.**
+>
+> — [Rendering Philosophy](https://nextjs.org/docs/app/guides/rendering-philosophy)
+
+「ルート単位の静的/動的」から「コンポーネント単位の静的/動的」への移行が `cacheComponents: true` の本質です。
+
+---
+
+## 採用判断の目安
+
+`cacheComponents: true` は後から有効化すると既存のルートセグメント設定（`dynamic`, `revalidate` 等）が無効化されるため、
+プロジェクト開始時に判断するのが望ましいです。
+
+| プロジェクトの性質                           | 推奨モデル                                                              |
+| -------------------------------------------- | ----------------------------------------------------------------------- |
+| 静的コンテンツ主体（ブログ・ドキュメント等） | 従来モデル（`generateStaticParams` + 必要箇所のみ動的）                 |
+| 動的データが多い（EC・ダッシュボード等）     | `cacheComponents: true`（PPR の恩恵が大きい）                           |
+| 混在型                                       | `cacheComponents: true` を最初から採用し、静的部分に `use cache` を付与 |
+
+---
+
+## キャッシュ手段の対応関係
+
+| 用途                                | 従来モデル                     | cacheComponents: true                |
+| ----------------------------------- | ------------------------------ | ------------------------------------ |
+| fetch のキャッシュ                  | `{ cache: 'force-cache' }`     | `use cache`                          |
+| fetch の再検証                      | `{ next: { revalidate: 60 } }` | `use cache` + `cacheLife('minutes')` |
+| 非 fetch（DB クエリ等）のキャッシュ | `unstable_cache`（非推奨）     | `use cache`                          |
+| タグベースの再検証                  | `revalidateTag()`              | `revalidateTag()` / `updateTag()`    |
+
+## 関連リンク
+
+- <Link
+    href="https://nextjsjp.org/docs/app/guides/caching#%E5%AE%8C%E5%85%A8%E3%83%AB%E3%83%BC%E3%83%88%E3%82%AD%E3%83%A3%E3%83%83%E3%82%B7%E3%83%A5"
+    target="_blank"
+  >
+    完全ルートキャッシュ
+  </Link>

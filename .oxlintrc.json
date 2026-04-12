@@ -1,0 +1,268 @@
+{
+  // https://oxc.rs/docs/guide/usage/linter/config-file-reference.html
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    // @typescript-eslint/eslint-plugin
+    "typescript",
+    // eslint-plugin-react / eslint-plugin-react-hooks
+    "react",
+    // eslint-plugin-next
+    "nextjs",
+    // eslint-plugin-import / eslint-plugin-import-x
+    "import",
+    // eslint-plugin-jsx-a11y
+    "jsx-a11y",
+    // eslint-plugin-unicorn
+    "unicorn"
+  ],
+  // 各プラグインの推奨ルールを一括有効化（nurseryは実験的ルールのため除外）
+  "categories": {
+    // 明らかに誤っている、または不要なコード
+    "correctness": "error",
+    // 誤りである、または不要である可能性が高いコード
+    "suspicious": "warn",
+    // 誤検知が発生する可能性のある、非常に厳格なルール
+    "pedantic": "warn",
+    // 実行パフォーマンスの向上を目的としたルール
+    "perf": "warn",
+    // 慣習的で一貫性のあるスタイルを保つためのルール
+    "style": "warn",
+    // 特定のパターンや機能を禁止するルール
+    "restriction": "warn"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "node": true
+  },
+  "globals": {
+    "AudioWorkletGlobalScope": "readonly",
+    "AudioWorkletProcessor": "readonly",
+    "currentFrame": "readonly",
+    "currentTime": "readonly",
+    "registerProcessor": "readonly",
+    "sampleRate": "readonly",
+    "WorkletGlobalScope": "readonly"
+  },
+  "ignorePatterns": [
+    //
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts"
+  ],
+  "rules": {
+    "no-array-constructor": "error",
+    "no-unused-expressions": "warn",
+    "no-unused-vars": "warn",
+    "no-var": "error",
+    // TypeScript コンパイラが処理するため off
+    "no-with": "off",
+    "no-redeclare": "off",
+    "no-class-assign": "off",
+    "no-const-assign": "off",
+    "no-dupe-class-members": "off",
+    "no-dupe-keys": "off",
+    "no-func-assign": "off",
+    "no-import-assign": "off",
+    "no-new-native-nonconstructor": "off",
+    "no-obj-calls": "off",
+    "no-setter-return": "off",
+    "no-this-before-super": "off",
+    "no-unsafe-negation": "off",
+    "constructor-super": "off",
+    "prefer-const": "error",
+    "prefer-rest-params": "error",
+    "prefer-spread": "error",
+    "nextjs/google-font-display": "warn",
+    "nextjs/google-font-preconnect": "warn",
+    "nextjs/next-script-for-ga": "warn",
+    "nextjs/no-async-client-component": "warn",
+    "nextjs/no-before-interactive-script-outside-document": "warn",
+    "nextjs/no-css-tags": "warn",
+    "nextjs/no-head-element": "warn",
+    "nextjs/no-html-link-for-pages": "error",
+    "nextjs/no-img-element": "warn",
+    "nextjs/no-page-custom-font": "warn",
+    "nextjs/no-styled-jsx-in-document": "warn",
+    "nextjs/no-sync-scripts": "error",
+    "nextjs/no-title-in-document-head": "warn",
+    "nextjs/no-typos": "warn",
+    "nextjs/no-unwanted-polyfillio": "warn",
+    "nextjs/inline-script-id": "error",
+    "nextjs/no-assign-module-variable": "error",
+    "nextjs/no-document-import-in-page": "error",
+    "nextjs/no-duplicate-head": "error",
+    "nextjs/no-head-import-in-document": "error",
+    "nextjs/no-script-component-in-head": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/no-duplicate-enum-values": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/no-extra-non-null-assertion": "error",
+    "typescript/no-misused-new": "error",
+    "typescript/no-namespace": "error",
+    "typescript/no-non-null-asserted-optional-chain": "error",
+    "typescript/no-require-imports": "error",
+    "typescript/no-this-alias": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "typescript/no-unsafe-declaration-merging": "error",
+    "typescript/no-unsafe-function-type": "error",
+    "typescript/no-wrapper-object-types": "error",
+    "typescript/prefer-as-const": "error",
+    "typescript/prefer-namespace-keyword": "error",
+    "typescript/triple-slash-reference": "error",
+    "react/display-name": "error",
+    "react/jsx-key": "error",
+    "react/jsx-no-comment-textnodes": "error",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-target-blank": "off",
+    "react/jsx-no-undef": "error",
+    "react/no-children-prop": "error",
+    "react/no-danger-with-children": "error",
+    "react/no-direct-mutation-state": "error",
+    "react/no-find-dom-node": "error",
+    "react/no-is-mounted": "error",
+    "react/no-render-return-value": "error",
+    "react/no-string-refs": "error",
+    "react/no-unescaped-entities": "error",
+    "react/no-unknown-property": "off",
+    "react/no-unsafe": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "import/no-anonymous-default-export": "warn",
+    "jsx-a11y/alt-text": [
+      "warn",
+      {
+        "elements": ["img"],
+        "img": ["Image"]
+      }
+    ],
+    "jsx-a11y/aria-props": "warn",
+    "jsx-a11y/aria-proptypes": "warn",
+    "jsx-a11y/aria-unsupported-elements": "warn",
+    "jsx-a11y/role-has-required-aria-props": "warn",
+    "jsx-a11y/role-supports-aria-props": "warn",
+
+    // ===== restriction向けオーバーライド =====
+    // Next.js は default export が必須（pages / app router）
+    "import/no-default-export": "off",
+    // 設定ファイル（next.config.ts 等）で CommonJS を使用
+    "import/no-commonjs": "off",
+    // 不要
+    "import/no-amd": "off",
+    "import/no-webpack-loader-syntax": "off",
+    "import/unambiguous": "off",
+    // パフォーマンス問題・@/ エイリアスを使用
+    "import/no-cycle": "off",
+    "import/no-relative-parent-imports": "off",
+    // async/await・オプショナルチェーン・スプレッド構文を使用
+    "oxc/no-async-await": "off",
+    "oxc/no-optional-chaining": "off",
+    "oxc/no-rest-spread-properties": "off",
+    // index.ts バレルファイルを使用する場合あり
+    "oxc/no-barrel-file": "off",
+    // .tsx ファイルを使用
+    "react/jsx-filename-extension": "off",
+    // 過剰な制限
+    "react/forbid-dom-props": "off",
+    "react/forbid-elements": "off",
+    "react/no-multi-comp": "off",
+    "react/no-danger": "off",
+    "react/prefer-function-component": "off",
+    "react/only-export-components": "off",
+    // 型注釈を都度書くのは冗長
+    "typescript/explicit-function-return-type": "off",
+    "typescript/explicit-module-boundary-types": "off",
+    // 非 null アサーションが必要な場面あり
+    "typescript/no-non-null-assertion": "off",
+    // 開発の利便性のため許可
+    "no-console": "off",
+    // undefined を使用
+    "no-undefined": "off",
+    // TypeScript が処理
+    "no-use-before-define": "off",
+    // 不要
+    "class-methods-use-this": "off",
+    // TS の interface 実装等で空関数は一般的
+    "no-empty-function": "off",
+    // ループカウンタ等で一般的
+    "no-plusplus": "off",
+    // 関数の引数の再代入は一般的なパターン
+    "no-param-reassign": "off",
+
+    // ===== pedantic向けオーバーライド =====
+    // tsconfig に strict: true がないと誤検知が多い
+    "typescript/no-unsafe-argument": "off",
+    "typescript/no-unsafe-assignment": "off",
+    "typescript/no-unsafe-call": "off",
+    "typescript/no-unsafe-member-access": "off",
+    "typescript/no-unsafe-return": "off",
+    // 厳格すぎる（0 値・空文字など正常な falsy を排除）
+    "typescript/strict-boolean-expressions": "off",
+    // onClick={async () => ...} パターンで誤検知
+    "typescript/no-misused-promises": "off",
+    // コンポーネントは大きくなることがある
+    "max-lines": "off",
+    "max-lines-per-function": "off",
+    "max-depth": "off",
+    "max-nested-callbacks": "off",
+    "max-classes-per-file": "off",
+    // TODO コメントを許可
+    "no-warning-comments": "off",
+    // インラインコメントを許可
+    "no-inline-comments": "off",
+    // 変数のソートは不要
+    "sort-vars": "off",
+
+    // ===== style向けオーバーライド =====
+    // ソートはフォーマッタ（Prettier 等）に委ねる
+    "sort-imports": "off",
+    "sort-keys": "off",
+    // i, e, x などの 1 文字変数を許可
+    "id-length": "off",
+    // UI コードでは数値リテラルを多用する
+    "no-magic-numbers": "off",
+    // unicorn/prefer-ternary と競合
+    "no-ternary": "off",
+    // コメントの大文字小文字は自由
+    "capitalized-comments": "off",
+    // 関数の引数数・文数の制限は不要
+    "max-params": "off",
+    "max-statements": "off",
+    // type / interface どちらも使用可
+    "typescript/consistent-type-definitions": "off",
+    // ファイル名のケーススタイルは強制しない
+    "unicorn/filename-case": "off",
+    // Next.js フォント関数は大文字始まりだが new 不要
+    "new-cap": "off",
+    // unicorn/no-useless-undefined と競合
+    "init-declarations": "off",
+    // アロー関数・function 宣言どちらも使用
+    "func-style": "off",
+    // continue を使用する場合あり
+    "no-continue": "off",
+    // named export を使用
+    "import/no-named-export": "off",
+    // unicorn/no-anonymous-default-export と方針が競合
+    "import/prefer-default-export": "off",
+    // 型のみimport：import type / 混在import：import { value, type Type }
+    "import/consistent-type-specifier-style": "off",
+    // 過剰
+    "import/exports-last": "off",
+    "import/group-exports": "off",
+    // Node.js モジュールを使用する場合あり
+    "import/no-nodejs-modules": "off",
+    // スプレッド props は一般的な React パターン
+    "react/jsx-props-no-spreading": "off",
+    // JSX のネスト深度は制限しない
+    "react/jsx-max-depth": "off",
+
+    // ===== suspicious向けオーバーライド =====
+    // globals.css 等の副作用 import（import './globals.css'）を許可
+    "import/no-unassigned-import": "off",
+    // TypeScript が処理（変数のシャドウ）
+    "no-shadow": "off"
+  }
+}

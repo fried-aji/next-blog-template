@@ -1,0 +1,5 @@
+# リリース後3日未満のパッケージへの更新を禁止
+minimumReleaseAge: 4320
+
+# 無効なpeerDependenciesがある場合（バージョン不整合など）にコマンドを停止
+strictPeerDependencies: true
