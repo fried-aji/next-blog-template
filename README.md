@@ -43,12 +43,9 @@ $ pnpm dev
 .
 ├── public/                  # 静的ファイル
 └── src/
-    ├── actions/             # Server Actions
+    ├── actions/             # 汎用Server Actions
     ├── app/                 # App Router
     │   ├── (pages)/         # ページレイアウトグループ
-    │   │   ├── about/       # About ページ
-    │   │   └── blog/        # ブログ一覧・記事詳細
-    │   │       └── [slug]/  # 動的ルート（記事詳細）
     │   ├── layout.tsx       # ルートレイアウト
     │   ├── page.tsx         # トップページ
     │   ├── error.tsx        # エラーページ
@@ -56,19 +53,16 @@ $ pnpm dev
     │   ├── robots.ts        # robots.txt
     │   ├── sitemap.ts       # サイトマップ
     │   └── manifest.ts      # Web App Manifest
-    ├── components/
-    │   ├── helper/          # ユーティリティコンポーネント
-    │   ├── layout/          # ヘッダー等のレイアウト
-    │   └── ui/              # 汎用 UI コンポーネント
-    ├── constants/           # 定数
-    ├── content/
-    │   └── blog/            # ブログ記事（.mdx）
-    ├── hooks/               # カスタムフック
-    ├── lib/                 # ユーティリティ関数
-    ├── schemas/             # バリデーションスキーマ
+    ├── components/          # 汎用コンポーネント
+    ├── constants/           # 汎用定数
+    ├── content/             # 記事データ（.mdx）
+    ├── hooks/               # 汎用カスタムフック
+    ├── lib/                 # ライブラリ関連
+    ├── schemas/             # 汎用バリデーションスキーマ
     ├── stores/              # 状態管理
-    ├── styles/              # CSS ファイル
-    ├── types/               # 型定義
+    ├── styles/              # グローバルCSS（Tailwind）
+    ├── types/               # 汎用型定義
+    ├── utils/               # ユーティリティ関数
     └── mdx-components.tsx   # MDX コンポーネントマッピング
 ```
 
