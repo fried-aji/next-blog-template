@@ -23,7 +23,7 @@ export function Header() {
     <header className="w-full sticky top-0 bg-white z-10 px-10 py-5 border-b border-gray-200">
       <div className="grid grid-cols-[auto_1fr] items-center">
         <NextLink href="/">
-          <Image src="/next.svg" alt="Next.js logo" width={100} height={20} priority />
+          <Image src="/next.svg" alt="Next.js logo" width={100} height={20} preload />
         </NextLink>
         <nav aria-label="グローバルナビゲーション">
           <ul className="flex justify-end gap-6">
