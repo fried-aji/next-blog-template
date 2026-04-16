@@ -14,6 +14,8 @@
     "next-env.d.ts"
   ],
   "sortImports": true,
-  "sortTailwindcss": false,
+  "sortTailwindcss": {
+    "stylesheet": "src/styles/app.css"
+  },
   "sortPackageJson": true
 }
