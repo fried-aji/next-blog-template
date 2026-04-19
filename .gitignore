@@ -40,9 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# AI agents
-.agents
-
 # claude
-.claude
 /docs
+# next-agents-md
+.next-docs/
