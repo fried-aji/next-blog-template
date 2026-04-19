@@ -1,3 +1,10 @@
+<!-- BEGIN:react-best-practices-rules -->
+# React / Next.js 実装時は vercel-react-best-practices を参照する
+
+コンポーネントの実装・レビュー時は `vercel-react-best-practices` スキルを参照すること。
+
+<!-- END:react-best-practices-rules -->
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
